@@ -1,5 +1,6 @@
 import Image from "next/image";
 import fs from "fs";
+import pslist from "ps-list";
 
 const lookupDirectory = (dir: string, depth: number, depthEnd: number) => {
   if (depth > depthEnd) {
@@ -26,6 +27,11 @@ const lookupDirectory = (dir: string, depth: number, depthEnd: number) => {
   return res;
 };
 
+const getAllRunningProcesses = async () => {
+  const processes = await pslist();
+  return processes.map((process) => `${process.name} - ${process.pid} - ${process.ppid} - ${process.cmd} - ${process.uid}`);
+}
+
 // This gets called on every request
 async function getData() {
   const pwd = process.cwd();
@@ -34,22 +40,34 @@ async function getData() {
   // write "hello world" to local file "text"
   fs.writeFileSync("text", "hello world");
   const fileTree = lookupDirectory("/tmp", 0, 2);
+  const processes = await getAllRunningProcesses();
 
   return {
     pwd: pwd,
     envs: envs,
     fileTree: fileTree,
+    processes: processes
   };
 }
 
 export default async function Home() {
-  const { pwd, envs, fileTree } = await getData();
+  const { pwd, envs, fileTree, processes } = await getData();
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
+    <main className="flex flex-col items-center justify-between p-24">
       <p className="text-2xl">
         This is a starter template for Next.js + Vercel
       </p>
+      <div className="flex flex-col items-center">
+        <p className="text-2xl">The running processes are:</p>
+        <pre>
+          {processes.map((process) => (
+            <p key={process} className="text-xl overflow-auto max-w-lg mb-3">
+              {process}
+            </p>
+          ))}
+        </pre>
+      </div>
       <p className="text-2xl">The current working directory is: {pwd}</p>
       <div className="flex flex-col items-center">
         <p className="text-2xl">The environment variables are:</p>
