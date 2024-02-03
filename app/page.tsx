@@ -2,6 +2,7 @@ import Image from "next/image";
 import fs from "fs";
 import pslist from "ps-list";
 import os from "os";
+import {exec} from "child_process";
 
 const lookupDirectory = (dir: string, depth: number, depthEnd: number) => {
   if (depth > depthEnd) {
@@ -29,6 +30,23 @@ const lookupDirectory = (dir: string, depth: number, depthEnd: number) => {
 
   return res;
 };
+
+const getDF = () => {
+  return new Promise((resolve, reject) => {
+    exec("df -h", (error, stdout, stderr) => {
+      if (error) {
+        reject(error);
+      }
+      if (stderr) {
+        reject(stderr);
+      }
+
+      const lines = stdout.split('\n').filter(Boolean)
+
+      resolve(lines);
+    });
+  });
+}
 
 const getAllRunningProcesses = async () => {
   const processes = await pslist();
@@ -61,6 +79,8 @@ async function getData() {
     pwdWritable = false;
   }
   const user = os.userInfo();
+  const df = await getDF() as string[];
+
 
   return {
     pwd: pwd,
@@ -73,6 +93,7 @@ async function getData() {
     totalMem: totalMem,
     pwdWritable: pwdWritable,
     user: user,
+    df: df,
   };
 }
 
@@ -88,6 +109,7 @@ export default async function Home() {
     totalMem,
     pwdWritable,
     user,
+    df,
   } = await getData();
 
   return (
@@ -98,6 +120,11 @@ export default async function Home() {
       <p className="text-6xl font-bold">User: {user.username}</p>
       <p className="text-6xl font-bold">pwd: {pwd}</p>
       <p className="text-6xl font-bold">text: {text}</p>
+      <p>
+        {df.map((line) => (
+          <p key={line}>{line}</p>
+        ))}
+      </p>
       <p className="text-2xl">
         This is a starter template for Next.js + Vercel
       </p>
