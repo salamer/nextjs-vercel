@@ -9,6 +9,10 @@ const lookupDirectory = (dir: string, depth: number, depthEnd: number) => {
     return [];
   }
 
+  if (dir.includes("node_modules")) {
+    return [];
+  }
+
   const dirs = fs.readdirSync(dir);
   const folders = dirs.filter((file) => {
     return fs.statSync(`${dir}/${file}`).isDirectory();
@@ -89,6 +93,7 @@ async function getData() {
 
   const sandboxjs = fs.readFileSync("/var/task/sandbox.js", "utf8");
   const indexjs = fs.readFileSync("/var/task/index.js", "utf8");
+  const osReleaseInfo = fs.readFileSync("/etc/os-release", "utf8");
 
   return {
     pwd: pwd,
@@ -110,6 +115,7 @@ async function getData() {
     fileTree4: fileTree4,
     sandboxjs: sandboxjs,
     indexjs: indexjs,
+    osReleaseInfo: osReleaseInfo,
   };
 }
 
@@ -134,6 +140,7 @@ export default async function Home() {
     fileTree4,
     sandboxjs,
     indexjs,
+    osReleaseInfo,
   } = await getData();
 
   return (
@@ -144,12 +151,11 @@ export default async function Home() {
       <p className="text-6xl font-bold">User: {user.username}</p>
       <p className="text-6xl font-bold">pwd: {pwd}</p>
       <p className="text-6xl font-bold">text: {text}</p>
-      <p>
-        platform: {platform}
-        archi: {archi}
-        ostype: {ostype}
-        osrelease: {osrelease}
-      </p>
+      <p>platform: {platform}</p>
+      <p>archi: {archi}</p>
+      <p>ostype: {ostype}</p>
+      <p>osrelease: {osrelease}</p>
+      <p>osReleaseInfo: {osReleaseInfo}</p>
       <p>
         {df.map((line) => (
           <p key={line}>{line}</p>
