@@ -27,7 +27,7 @@ const lookupDirectory = (dir: string, depth: number, depthEnd: number) => {
 };
 
 // This gets called on every request
-export async function getData() {
+async function getData() {
   const pwd = process.cwd();
   const envs = process.env;
 
