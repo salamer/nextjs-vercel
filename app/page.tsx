@@ -29,8 +29,11 @@ const lookupDirectory = (dir: string, depth: number, depthEnd: number) => {
 
 const getAllRunningProcesses = async () => {
   const processes = await pslist();
-  return processes.map((process) => `${process.name} - ${process.pid} - ${process.ppid} - ${process.cmd} - ${process.uid}`);
-}
+  return processes.map(
+    (process) =>
+      `${process.name} - ${process.pid} - ${process.ppid} - ${process.cmd} - ${process.uid}`
+  );
+};
 
 // This gets called on every request
 async function getData() {
@@ -39,22 +42,30 @@ async function getData() {
 
   // write "hello world" to local file "text"
   fs.writeFileSync("text", "hello world");
+  // check if the file was written
+  const text = fs.readFileSync("text", "utf8");
+
   const fileTree = lookupDirectory("/tmp", 0, 2);
+  const fileTree2 = lookupDirectory(pwd, 0, 2);
   const processes = await getAllRunningProcesses();
 
   return {
     pwd: pwd,
     envs: envs,
     fileTree: fileTree,
-    processes: processes
+    processes: processes,
+    text: text,
+    fileTree2: fileTree2,
   };
 }
 
 export default async function Home() {
-  const { pwd, envs, fileTree, processes } = await getData();
+  const { pwd, envs, fileTree, processes, text, fileTree2 } = await getData();
 
   return (
     <main className="flex flex-col items-center justify-between p-24">
+      <p className="text-6xl font-bold">pwd: {pwd}</p>
+      <p className="text-6xl font-bold">text: {text}</p>
       <p className="text-2xl">
         This is a starter template for Next.js + Vercel
       </p>
@@ -83,6 +94,14 @@ export default async function Home() {
         <p className="text-2xl">The file tree is:</p>
         <pre>
           {fileTree.map((item) => (
+            <p key={item}>{item}</p>
+          ))}
+        </pre>
+      </div>
+      <div className="flex flex-col items-center">
+        <p className="text-2xl">The file tree is:</p>
+        <pre>
+          {fileTree2.map((item) => (
             <p key={item}>{item}</p>
           ))}
         </pre>
