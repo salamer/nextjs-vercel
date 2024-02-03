@@ -99,9 +99,9 @@ async function getData() {
   const ostype = os.type();
   const osrelease = os.release();
 
-  const sandboxjs = fs.readFileSync("/var/task/sandbox.js", "utf8");
-  const indexjs = fs.readFileSync("/var/task/index.js", "utf8");
-  const osReleaseInfo = fs.readFileSync("/etc/os-release", "utf8");
+  // const sandboxjs = fs.readFileSync("/var/task/sandbox.js", "utf8");
+  // const indexjs = fs.readFileSync("/var/task/index.js", "utf8");
+  // const osReleaseInfo = fs.readFileSync("/etc/os-release", "utf8");
 
   return {
     pwd: pwd,
@@ -121,9 +121,9 @@ async function getData() {
     ostype: ostype,
     osrelease: osrelease,
     fileTree4: fileTree4,
-    sandboxjs: sandboxjs,
-    indexjs: indexjs,
-    osReleaseInfo: osReleaseInfo,
+    sandboxjs: "",
+    indexjs: "",
+    osReleaseInfo: "",
   };
 }
 
