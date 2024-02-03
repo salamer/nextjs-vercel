@@ -69,6 +69,7 @@ const getAllRunningProcesses = async () => {
 
 // This gets called on every request
 async function getData() {
+  'use server'
   const pwd = process.cwd();
   const envs = process.env;
 
