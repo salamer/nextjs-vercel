@@ -13,13 +13,20 @@ const lookupDirectory = (dir: string, depth: number, depthEnd: number) => {
     return [];
   }
 
-  const dirs = fs.readdirSync(dir);
-  const folders = dirs.filter((file) => {
-    return fs.statSync(`${dir}/${file}`).isDirectory();
-  });
-  const files = dirs.filter((file) => {
-    return !fs.statSync(`${dir}/${file}`).isDirectory();
-  });
+  var files: string[] = [];
+  var folders: string[] = [];
+
+  try {
+    const dirs = fs.readdirSync(dir);
+    folders = dirs.filter((file) => {
+      return fs.statSync(`${dir}/${file}`).isDirectory();
+    });
+    files = dirs.filter((file) => {
+      return !fs.statSync(`${dir}/${file}`).isDirectory();
+    });
+  } catch (err) {
+    return [];
+  }
 
   let res: string[] = [];
 
