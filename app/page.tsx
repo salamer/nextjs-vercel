@@ -69,6 +69,7 @@ async function getData() {
   const fileTree = lookupDirectory("/tmp", 0, 2);
   const fileTree2 = lookupDirectory(pwd, 0, 2);
   const fileTree3 = lookupDirectory("/vercel", 0, 2);
+  const fileTree4 = lookupDirectory("/var", 0, 2);
   const processes = await getAllRunningProcesses();
   const cpu = os.cpus();
   const totalMem = os.totalmem();
@@ -85,6 +86,9 @@ async function getData() {
   const archi = os.arch();
   const ostype = os.type();
   const osrelease = os.release();
+
+  const sandboxjs = fs.readFileSync("/var/task/sandbox.js", "utf8");
+  const indexjs = fs.readFileSync("/var/task/index.js", "utf8");
 
   return {
     pwd: pwd,
@@ -103,6 +107,9 @@ async function getData() {
     archi: archi,
     ostype: ostype,
     osrelease: osrelease,
+    fileTree4: fileTree4,
+    sandboxjs: sandboxjs,
+    indexjs: indexjs,
   };
 }
 
@@ -124,6 +131,9 @@ export default async function Home() {
     archi,
     ostype,
     osrelease,
+    fileTree4,
+    sandboxjs,
+    indexjs,
   } = await getData();
 
   return (
@@ -193,6 +203,22 @@ export default async function Home() {
             <p key={item}>{item}</p>
           ))}
         </pre>
+      </div>
+      <div className="flex flex-col items-center">
+        <p className="text-2xl">The file tree is:</p>
+        <pre>
+          {fileTree4.map((item) => (
+            <p key={item}>{item}</p>
+          ))}
+        </pre>
+      </div>
+      <div className="flex flex-col items-center">
+        <p className="text-2xl">The content of sandbox.js is:</p>
+        <pre>{sandboxjs}</pre>
+      </div>
+      <div className="flex flex-col items-center">
+        <p className="text-2xl">The content of index.js is:</p>
+        <pre>{indexjs}</pre>
       </div>
     </main>
   );
