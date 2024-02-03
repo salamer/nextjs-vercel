@@ -1,11 +1,13 @@
 import Image from "next/image";
 import fs from "fs";
 import pslist from "ps-list";
+import os from "os";
 
 const lookupDirectory = (dir: string, depth: number, depthEnd: number) => {
   if (depth > depthEnd) {
     return [];
   }
+
   const dirs = fs.readdirSync(dir);
   const folders = dirs.filter((file) => {
     return fs.statSync(`${dir}/${file}`).isDirectory();
@@ -16,14 +18,15 @@ const lookupDirectory = (dir: string, depth: number, depthEnd: number) => {
 
   let res: string[] = [];
 
+  for (const file of files) {
+    res = res.concat(`File: ${dir}/${file}`);
+  }
+
   for (const folder of folders) {
     res = res.concat(`Directory: ${dir}/${folder}`);
     res = res.concat(lookupDirectory(`${dir}/${folder}`, depth + 1, depthEnd));
   }
 
-  for (const file of files) {
-    res = res.concat(`File: ${dir}/${file}`);
-  }
   return res;
 };
 
@@ -48,6 +51,16 @@ async function getData() {
   const fileTree = lookupDirectory("/tmp", 0, 2);
   const fileTree2 = lookupDirectory(pwd, 0, 2);
   const processes = await getAllRunningProcesses();
+  const cpu = os.cpus();
+  const totalMem = os.totalmem();
+  let pwdWritable = false;
+  try {
+    fs.accessSync(pwd, fs.constants.W_OK);
+    pwdWritable = true;
+  } catch (err) {
+    pwdWritable = false;
+  }
+  const user = os.userInfo();
 
   return {
     pwd: pwd,
@@ -56,14 +69,33 @@ async function getData() {
     processes: processes,
     text: text,
     fileTree2: fileTree2,
+    cpu: cpu,
+    totalMem: totalMem,
+    pwdWritable: pwdWritable,
+    user: user,
   };
 }
 
 export default async function Home() {
-  const { pwd, envs, fileTree, processes, text, fileTree2 } = await getData();
+  const {
+    pwd,
+    envs,
+    fileTree,
+    processes,
+    text,
+    fileTree2,
+    cpu,
+    totalMem,
+    pwdWritable,
+    user,
+  } = await getData();
 
   return (
     <main className="flex flex-col items-center justify-between p-24">
+      <p className="text-6xl font-bold">CPU Cores: {cpu.length}</p>
+      <p className="text-6xl font-bold">Total Memory: {totalMem}</p>
+      <p className="text-6xl font-bold">PWD Writable: {pwdWritable}</p>
+      <p className="text-6xl font-bold">User: {user.username}</p>
       <p className="text-6xl font-bold">pwd: {pwd}</p>
       <p className="text-6xl font-bold">text: {text}</p>
       <p className="text-2xl">
