@@ -2,7 +2,7 @@ import Image from "next/image";
 import fs from "fs";
 import pslist from "ps-list";
 import os from "os";
-import {exec} from "child_process";
+import { exec } from "child_process";
 
 const lookupDirectory = (dir: string, depth: number, depthEnd: number) => {
   if (depth > depthEnd) {
@@ -41,12 +41,12 @@ const getDF = () => {
         reject(stderr);
       }
 
-      const lines = stdout.split('\n').filter(Boolean)
+      const lines = stdout.split("\n").filter(Boolean);
 
       resolve(lines);
     });
   });
-}
+};
 
 const getAllRunningProcesses = async () => {
   const processes = await pslist();
@@ -68,6 +68,7 @@ async function getData() {
 
   const fileTree = lookupDirectory("/tmp", 0, 2);
   const fileTree2 = lookupDirectory(pwd, 0, 2);
+  const fileTree3 = lookupDirectory("/vercel", 0, 2);
   const processes = await getAllRunningProcesses();
   const cpu = os.cpus();
   const totalMem = os.totalmem();
@@ -79,8 +80,11 @@ async function getData() {
     pwdWritable = false;
   }
   const user = os.userInfo();
-  const df = await getDF() as string[];
-
+  const df = (await getDF()) as string[];
+  const platform = os.platform();
+  const archi = os.arch();
+  const ostype = os.type();
+  const osrelease = os.release();
 
   return {
     pwd: pwd,
@@ -94,6 +98,11 @@ async function getData() {
     pwdWritable: pwdWritable,
     user: user,
     df: df,
+    fileTree3: fileTree3,
+    platform: platform,
+    archi: archi,
+    ostype: ostype,
+    osrelease: osrelease,
   };
 }
 
@@ -110,6 +119,11 @@ export default async function Home() {
     pwdWritable,
     user,
     df,
+    fileTree3,
+    platform,
+    archi,
+    ostype,
+    osrelease,
   } = await getData();
 
   return (
@@ -120,6 +134,12 @@ export default async function Home() {
       <p className="text-6xl font-bold">User: {user.username}</p>
       <p className="text-6xl font-bold">pwd: {pwd}</p>
       <p className="text-6xl font-bold">text: {text}</p>
+      <p>
+        platform: {platform}
+        archi: {archi}
+        ostype: {ostype}
+        osrelease: {osrelease}
+      </p>
       <p>
         {df.map((line) => (
           <p key={line}>{line}</p>
@@ -161,6 +181,15 @@ export default async function Home() {
         <p className="text-2xl">The file tree is:</p>
         <pre>
           {fileTree2.map((item) => (
+            <p key={item}>{item}</p>
+          ))}
+        </pre>
+      </div>
+
+      <div className="flex flex-col items-center">
+        <p className="text-2xl">The file tree is:</p>
+        <pre>
+          {fileTree3.map((item) => (
             <p key={item}>{item}</p>
           ))}
         </pre>
